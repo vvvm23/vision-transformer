@@ -9,7 +9,6 @@ class PositionalEncoding(nn.Module):
 
         pe = torch.zeros(max_length, nb_in)
         position = torch.arange(0, max_length, dtype=torch.float).unsqueeze(1)
-        # div_term = torch.exp(torch.arange(0, nb_in, 2).float() * (-math.log(10000.0) / nb_in))
         div_term = torch.exp(torch.arange(0, nb_in, 2).float() * (-torch.log(torch.tensor(10000.0)) / nb_in))
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
@@ -17,7 +16,8 @@ class PositionalEncoding(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, x):
-        x = x + self.pe[:x.size(0), :]
+        # x = x + self.pe[:x.size(0), :]
+        x = x + self.pe
         return self.dropout(x)
 
 class VisionTransformer(nn.Module):
@@ -43,9 +43,10 @@ class VisionTransformer(nn.Module):
 
     def forward(self, x):
         x = x.view(-1, self.nb_patches, self.flatten_dim)
+        x = x.permute(1, 0, 2)
+
         x = self.linear_encoding(x)
         x = self.position_encoding(x)
-
         x = self.trans_encoder(x)
 
         x = x.view(-1, self.emd_dim*self.nb_patches)

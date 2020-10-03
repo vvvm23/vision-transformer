@@ -46,10 +46,11 @@ class VisionTransformer(nn.Module):
     def forward(self, x):
         x = x.unfold(2, self.patch_dim, self.patch_dim).unfold(3, self.patch_dim, self.patch_dim).contiguous()
         x = x.view(x.size(0), -1, self.flatten_dim)
-        x = x.permute(1, 0, 2)
+        # x = x.permute(1, 0, 2)
 
-        x = self.linear_encoding(x)
+        x = F.relu(self.linear_encoding(x))
         x = self.position_encoding(x)
+
         x = self.trans_encoder(x)
 
         x = x.view(-1, self.emd_dim*self.nb_patches)

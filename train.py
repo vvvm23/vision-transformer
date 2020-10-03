@@ -8,6 +8,7 @@ import time
 
 from model import VisionTransformer
 
+# Function that returns train and test set dataloaders based on the task at hand
 def select_dataset(task):
     if task == 'mnist':
         print("> Using MNIST dataset")
@@ -30,6 +31,7 @@ def select_dataset(task):
 
     return train_loader, test_loader
 
+# Initialises the VisionTransformer based on the task at hand
 def create_model(task):
     print("> Initialising Vision Transformer")
     if task == 'mnist':
@@ -40,7 +42,7 @@ def create_model(task):
         emd_dim = 64
         nb_heads = 4
         nb_layers = 4
-        h_dim = 128
+        h_dim = 256
     else:
         print(f"! Unknown task '{task}'!")
         exit()
@@ -51,6 +53,7 @@ def create_model(task):
         dropout=DROPOUT
     )
 
+# Trains the given model on the data loaded by loader for one epoch, given an optimizer and criterion
 def train(model, loader, optim, crit, device):
     cumulative_loss = 0.0
 
@@ -68,6 +71,7 @@ def train(model, loader, optim, crit, device):
 
     return cumulative_loss / len(loader)
 
+# Evaluates the given model by loss and accuracy given a test dataloader, optimizer(?) and criterion
 def evaluate(model, loader, optim, crit, device):
     cumulative_loss = 0.0
     correct_pred = 0
@@ -90,9 +94,9 @@ def evaluate(model, loader, optim, crit, device):
 if __name__ == '__main__':
     TRY_CUDA = True
     DATASET = 'mnist'
-    BATCH_SIZE = 256
+    BATCH_SIZE = 512
     NB_EPOCHS = 100
-    ALPHA = 3e-3
+    ALPHA = 3e-4 # lr
     DROPOUT = 0.1
 
     device = torch.device('cuda:0' if TRY_CUDA and torch.cuda.is_available() else 'cpu')

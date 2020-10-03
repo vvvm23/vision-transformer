@@ -22,6 +22,30 @@ def select_dataset(task):
                 torchvision.transforms.ToTensor()
             ]
         ))
+    elif task == 'fashion':
+        print("> Using FashionMNIST dataset")
+        train_dataset = torchvision.datasets.FashionMNIST('data', train=True, download=True,
+            transform=torchvision.transforms.Compose([
+                torchvision.transforms.ToTensor()
+            ]
+        ))
+        test_dataset = torchvision.datasets.FashionMNIST('data', train=False, download=True,
+            transform=torchvision.transforms.Compose([
+                torchvision.transforms.ToTensor()
+            ]
+        ))
+    elif task == 'kmnist':
+        print("> Using Kuzushiji-MNIST dataset")
+        train_dataset = torchvision.datasets.KMNIST('data', train=True, download=True,
+            transform=torchvision.transforms.Compose([
+                torchvision.transforms.ToTensor()
+            ]
+        ))
+        test_dataset = torchvision.datasets.KMNIST('data', train=False, download=True,
+            transform=torchvision.transforms.Compose([
+                torchvision.transforms.ToTensor()
+            ]
+        ))
     else:
         print(f"! Unknown task '{task}'!")
         exit()
@@ -34,7 +58,7 @@ def select_dataset(task):
 # Initialises the VisionTransformer based on the task at hand
 def create_model(task):
     print("> Initialising Vision Transformer")
-    if task == 'mnist':
+    if task in ['mnist', 'fashion', 'kmnist']:
         img_dim = 28
         patch_dim = 4
         out_dim = 10
@@ -93,9 +117,9 @@ def evaluate(model, loader, optim, crit, device):
 
 if __name__ == '__main__':
     TRY_CUDA = True
-    DATASET = 'mnist'
+    DATASET = 'kmnist'
     BATCH_SIZE = 512
-    NB_EPOCHS = 100
+    NB_EPOCHS = 30
     ALPHA = 3e-4 # lr
     DROPOUT = 0.1
 

@@ -50,7 +50,7 @@ class VisionTransformer(nn.Module):
 
         x = x.view(-1, self.emd_dim*self.nb_patches)
         x = self.decoder(x)
-        x = F.softmax(x, dim=-1)
+        x = F.log_softmax(x, dim=-1)
 
         return x
 

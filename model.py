@@ -16,8 +16,7 @@ class PositionalEncoding(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, x):
-        # x = x + self.pe[:x.size(0), :]
-        x = x + self.pe
+        x = x + self.pe[:x.size(0), :]
         return self.dropout(x)
 
 class VisionTransformer(nn.Module):
@@ -29,12 +28,15 @@ class VisionTransformer(nn.Module):
         
         self.emd_dim = emd_dim
         self.nb_heads = nb_heads
+        self.patch_dim = patch_dim
+        self.nb_channels = nb_channels
 
-        self.nb_patches = (img_dim * img_dim) // (patch_dim * patch_dim)
+        # self.nb_patches = (img_dim * img_dim) // (patch_dim * patch_dim)
+        self.nb_patches = int((img_dim // patch_dim) ** 2)
         self.flatten_dim = patch_dim * patch_dim * nb_channels
 
         self.linear_encoding = nn.Linear(self.flatten_dim, emd_dim)
-        self.position_encoding = PositionalEncoding(emd_dim, dropout=0.1, max_length=self.nb_patches)
+        self.position_encoding = PositionalEncoding(emd_dim, dropout=0.1)
 
         encoder_layer = nn.TransformerEncoderLayer(emd_dim, nb_heads, h_dim, dropout=dropout)
         self.trans_encoder = nn.TransformerEncoder(encoder_layer, nb_layers)
@@ -42,7 +44,8 @@ class VisionTransformer(nn.Module):
         self.decoder = nn.Linear(emd_dim*self.nb_patches, out_dim)
 
     def forward(self, x):
-        x = x.view(-1, self.nb_patches, self.flatten_dim)
+        x = x.unfold(2, self.patch_dim, self.patch_dim).unfold(3, self.patch_dim, self.patch_dim).contiguous()
+        x = x.view(x.size(0), -1, self.flatten_dim)
         x = x.permute(1, 0, 2)
 
         x = self.linear_encoding(x)
@@ -56,7 +59,7 @@ class VisionTransformer(nn.Module):
         return x
 
 if __name__ == '__main__':
-    model = VisionTransformer(28, 4, 10, 1, 256, 8, 6, 1024)
+    model = VisionTransformer(28, 7, 10, 1, 256, 8, 6, 1024)
     print(model)
 
     x = torch.randn(8, 1, 28, 28)

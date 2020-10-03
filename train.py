@@ -34,13 +34,13 @@ def create_model(task):
     print("> Initialising Vision Transformer")
     if task == 'mnist':
         img_dim = 28
-        patch_dim = 4
+        patch_dim = 7
         out_dim = 10
         nb_channels = 1
-        emd_dim = 256
-        nb_heads = 8
-        nb_layers = 6
-        h_dim = 1024
+        emd_dim = 64
+        nb_heads = 4
+        nb_layers = 4
+        h_dim = 128
     else:
         print(f"! Unknown task '{task}'!")
         exit()
@@ -90,9 +90,9 @@ def evaluate(model, loader, optim, crit, device):
 if __name__ == '__main__':
     TRY_CUDA = True
     DATASET = 'mnist'
-    BATCH_SIZE = 128
+    BATCH_SIZE = 64
     NB_EPOCHS = 100
-    ALPHA = 3e-3
+    ALPHA = 3e-4
     DROPOUT = 0.1
 
     device = torch.device('cuda:0' if TRY_CUDA and torch.cuda.is_available() else 'cpu')

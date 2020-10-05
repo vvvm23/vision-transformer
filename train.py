@@ -60,6 +60,20 @@ def select_dataset(task):
                 torchvision.transforms.ToTensor()
             ]
         ))
+    elif task == 'cifar100':
+        print("> Using CIFAR100 dataset")
+        train_dataset = torchvision.datasets.CIFAR100('data', train=True, download=True,
+            transform=torchvision.transforms.Compose([
+                torchvision.transforms.RandomHorizontalFlip(0.5),
+                torchvision.transforms.RandomRotation(10),
+                torchvision.transforms.ToTensor()
+            ]
+        ))
+        test_dataset = torchvision.datasets.CIFAR100('data', train=False, download=True,
+            transform=torchvision.transforms.Compose([
+                torchvision.transforms.ToTensor()
+            ]
+        ))
     else:
         print(f"! Unknown task '{task}'!")
         exit()
@@ -88,8 +102,17 @@ def create_model(task):
         nb_channels = 3
         emd_dim = 128
         nb_heads = 8
-        nb_layers = 6
-        h_dim = 512
+        nb_layers = 2
+        h_dim = 256
+    elif task in ['cifar100']:
+        img_dim = 32
+        patch_dim = 4
+        out_dim = 100
+        nb_channels = 3
+        emd_dim = 256
+        nb_heads = 8
+        nb_layers = 2
+        h_dim = 1024
     else:
         print(f"! Unknown task '{task}'!")
         exit()
@@ -140,10 +163,10 @@ def evaluate(model, loader, optim, crit, device):
 
 if __name__ == '__main__':
     TRY_CUDA = True
-    DATASET = 'cifar10'
+    DATASET = 'cifar100'
     BATCH_SIZE = 128
-    NB_EPOCHS = 30
-    ALPHA = 3e-3 # lr 
+    NB_EPOCHS = 100
+    ALPHA = 3e-4 # lr 
     DROPOUT = 0.0
 
     device = torch.device('cuda:0' if TRY_CUDA and torch.cuda.is_available() else 'cpu')

@@ -55,6 +55,8 @@ class VisionTransformer(nn.Module):
         # x = x.permute(1, 0, 2) # do we need to permute?
 
         x = F.relu(self.linear_encoding(x)) # Identically apply an encoding to all flattened patches
+
+
         x = self.position_encoding(x) # TODO: verify positional encoding is working as intended
 
         x = self.trans_encoder(x) # Pass patch sequence to the Transformer Encoder

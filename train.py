@@ -86,10 +86,10 @@ def create_model(task):
         patch_dim = 4
         out_dim = 10
         nb_channels = 3
-        emd_dim = 256
+        emd_dim = 128
         nb_heads = 8
         nb_layers = 6
-        h_dim = 1024
+        h_dim = 512
     else:
         print(f"! Unknown task '{task}'!")
         exit()
@@ -143,8 +143,8 @@ if __name__ == '__main__':
     DATASET = 'cifar10'
     BATCH_SIZE = 128
     NB_EPOCHS = 30
-    ALPHA = 3e-4 # lr
-    DROPOUT = 0.5
+    ALPHA = 3e-3 # lr 
+    DROPOUT = 0.0
 
     device = torch.device('cuda:0' if TRY_CUDA and torch.cuda.is_available() else 'cpu')
     print(f"> Device: {device} ({'CUDA is enabled' if TRY_CUDA and torch.cuda.is_available() else 'CUDA not available'})")
@@ -162,4 +162,3 @@ if __name__ == '__main__':
         print(f"> Training Loss: {train_loss}")
         print(f"> Evaluation Loss: {eval_loss}")
         print(f"> Evaluation Accuracy: {eval_accuracy:.2f}%\n")
-

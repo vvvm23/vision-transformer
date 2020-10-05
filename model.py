@@ -42,7 +42,11 @@ class VisionTransformer(nn.Module):
         encoder_layer = nn.TransformerEncoderLayer(emd_dim, nb_heads, h_dim, dropout=dropout)
         self.trans_encoder = nn.TransformerEncoder(encoder_layer, nb_layers)
 
-        self.decoder = nn.Linear(emd_dim*self.nb_patches, out_dim)
+        self.decoder = nn.Sequential(
+            nn.Linear(emd_dim*self.nb_patches, h_dim),
+            nn.ReLU(inplace = True),
+            nn.Linear(h_dim, out_dim)
+        )
 
     def forward(self, x):
         # Perform patch and flatten operations

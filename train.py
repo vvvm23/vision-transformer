@@ -6,7 +6,7 @@ import torchvision
 import tqdm
 import time
 
-from model import VisionTransformer
+from model import VisionTransformer, BaseModel
 
 # Function that returns train and test set dataloaders based on the task at hand
 def select_dataset(task):
@@ -123,6 +123,27 @@ def create_model(task):
         dropout=DROPOUT
     )
 
+def create_baseline_model(task):
+    if task in ['mnist', 'kmnist', 'fashion']:
+        img_dim = 28
+        nb_channels = 1
+        out_dim = 10
+        res_channels = 16
+        nb_res_blocks = 5
+        mlp_dim = 32
+    elif task in ['cifar10']:
+        img_dim = 32
+        nb_channels = 3
+        out_dim = 10
+        res_channels = 32
+        nb_res_blocks = 10
+        mlp_dim = 32
+    else:
+        print(f"! Unknown task '{task}'!")
+        exit()
+    
+    return BaseModel(img_dim, nb_channels, out_dim, res_channels, nb_res_blocks, mlp_dim)
+
 # Trains the given model on the data loaded by loader for one epoch, given an optimizer and criterion
 def train(model, loader, optim, crit, device):
     cumulative_loss = 0.0
@@ -163,21 +184,28 @@ def evaluate(model, loader, optim, crit, device):
 
 if __name__ == '__main__':
     TRY_CUDA = True
-    DATASET = 'cifar100'
+    DATASET = 'mnist'
     BATCH_SIZE = 128
     NB_EPOCHS = 100
-    ALPHA = 3e-4 # lr 
-    DROPOUT = 0.0
+    ALPHA = 3e-3 # lr 
+    DROPOUT = 0.1
+    BASELINE = True
 
     device = torch.device('cuda:0' if TRY_CUDA and torch.cuda.is_available() else 'cpu')
     print(f"> Device: {device} ({'CUDA is enabled' if TRY_CUDA and torch.cuda.is_available() else 'CUDA not available'})")
 
     train_loader, test_loader = select_dataset(DATASET)
-    model = create_model(DATASET).to(device)
+    if BASELINE:
+        model = create_baseline_model(DATASET).to(device)
+    else:
+        model = create_model(DATASET).to(device)
 
     optim = torch.optim.Adam(model.parameters(), lr=ALPHA)
-    crit = nn.NLLLoss()
+    crit = nn.CrossEntropyLoss()
     
+    print(f"> Model Summary: ")
+    print(model, '\n')
+
     for ei in range(NB_EPOCHS):
         print(f"> Epoch {ei+1}/{NB_EPOCHS}")
         train_loss = train(model, train_loader, optim, crit, device)
